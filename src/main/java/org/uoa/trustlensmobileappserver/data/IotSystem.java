@@ -48,8 +48,15 @@ public class IotSystem {
 	public String getUri() {
 		return "<" + id + ">";
 	}
+	public String getCleanUri() {
+		return id ;
+	}
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+	
+	public String getParentSystemURI() {
+		return this.highlevelsystemid;
 	}
 	
 	public boolean equals (Object obj){
