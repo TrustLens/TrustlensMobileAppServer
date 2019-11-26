@@ -128,12 +128,34 @@ public class QueryExecutor {
 				+ "?objective ep-plan:isObjectiveOfPlan ?procedure; a ep-plan:Objective; ep-plan:isAchievedBy ?dataOutput.  "
 				+ " VALUES (?system)" + "    {" + "        (<_IOT_SYSTEM_URI_>)" + "    }" + "}" });
 		questionsSparclQueries.put("storage", new String[] { prefixes
-				+ "SELECT DISTINCT ?storageStep  ?constraintLabel ?constraintComment  ?dataComment ?dataLabel "
-				+ "Where { " + "<_IOT_SYSTEM_URI_> a ssn:System. " + "?system ssn:implements ?plan. "
-				+ "?storageStep a ep-plan:Step; a gdpr:StoreData; ep-plan:hasConstraint ?constraint; ep-plan:isStepOfPlan ?plan. "
-				+ "?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment. "
-				+ "?storageStep ep-plan:hasInputVariable ?var. "
-				+ "?var a gdpr:PersonalData ; rdfs:comment ?dataComment; rdfs:label ?dataLabel. " + "} " });
+				+ "Select  Distinct ?shareComment ?objectiveComment" + 
+				"" + 
+				"WHERE{" + 
+				"OPTIONAL {" + 
+				"    ?system ssn:implements ?procedure." + 
+				"    }" + 
+				"    OPTIONAL {" + 
+				"     ?system    ssn:implements ?subprocedure." + 
+				"     ?subprocedure ep-plan:isSubPlanOfPlan ?procedure." + 
+				"    }" + 
+				"" + 
+				"?procedure a ep-plan:Plan ." + 
+				"" + 
+				"?sharingStep ep-plan:isStepOfPlan ?procedure; a gdpr:ShareDataWithThirdParty; rdfs:comment ?shareComment." + 
+				"" + 
+				"OPTIONAL {" + 
+				"?objective ep-plan:isAchievedBy ?sharingStep; rdfs:comment ?objectiveComment." + 
+				"}" + 
+				"" + 
+				"OPTIONAL {" + 
+				"?objective ep-plan:isAchievedBy ?output; rdfs:comment ?objectiveComment." + 
+				"?sharingStep ep-plan:hasOutputVariable ?output." + 
+				"}" + 
+				"" + 
+				"VALUES (?system) {" + 
+				"(<_IOT_SYSTEM_URI_>)" + 
+				"}" + 
+				"}" });
 		
 		questionsSparclQueries.put("identifiable", new String[] { prefixes
 				+ "Select DIstinct ?variableType ?label  ?comment ?parentSystem " + 
