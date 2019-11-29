@@ -41,19 +41,19 @@ import org.json.JSONObject;
 public class Controller {
 	private static String prefixes = "PREFIX ep-plan:<https://w3id.org/ep-plan#> PREFIX prov:<http://www.w3.org/ns/prov#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ";
 
-	private static Question[] questions = { new Question("data_collection", "Data collection", 2, ""),
-			new Question("identifiable", "Is collected data identifiable?", 2, ""),
-			new Question("storage", "Duration of Storage", 1, ""),
+	private static Question[] questions = { new Question("data_collection", "Data Collection", 2, ""),
+			new Question("identifiable", "Is Collected Data Identifiable?", 2, ""),
+			new Question("storage", "Duration Of Storage", 1, ""),
 
-			new Question("purpose", "Purpose of collected data", 3, prefixes
+			new Question("purpose", "Purpose Of Collected Data", 3, prefixes
 					+ "SELECT DISTINCT ?objective ?rationale ?objectiveDescription WHERE { <http://trustlens.org/test_dataset1#HomeMonitoringHighLevelPlan> a ep-plan:Plan; ep-plan:includesObjective ?objective. ?objective a ep-plan:Objective; rdfs:comment ?objectiveDescription; ep-plan:hasRationale ?rationale. } "),
 			new Question("sharing", "Data Sharing", 3,
 					prefixes + "SELECT  ?a ?b ?c  WHERE {     ?a ?b ?c . }  LIMIT 1"),
 
 			new Question("access", "Data Access", 1, ""), new Question("contact", "Contact Information", 1, ""),
 			new Question("privacy", "Privacy Policy", 2, ""),
-			new Question("protected_privacy", "How your Privacy is protected", 3, ""),
-			new Question("risk", "Risk indicator", 1, ""),
+			new Question("protected_privacy", "How Your Privacy Is Protected", 3, ""),
+			new Question("risk", "Risk Indicator", 1, ""),
 
 	};
 
@@ -69,7 +69,7 @@ public class Controller {
 					0, 0, "AB24 3AA", default_iot_system_uri, ""),
 			new QrcodeLocatedIotSystem("id3", "Tillydrone Ballard", "Sensor description", "Tillydrone, Aberdeen", 1, 1,
 					"AB24 2UD", "AAA", "", ""),
-			new QrcodeIotSystem("id4", "Kettle", "Kettle description", "BBB", "", ""),
+			new QrcodeIotSystem("id4", "Kettle", "Kettle description", "<http://example.com>", "", ""),
 			new QrcodeIotSystem("id5", "Samsung A40", "Samsung A40 description", "GH68-48395A", "", ""), };
 
 	private static LocatedIotSystem[] locatediotsystems;
@@ -114,6 +114,7 @@ public class Controller {
 
 		locatediotsystems = new LocatedIotSystem[locatediotsystems_count];
 		qrcodeiotsystems = new QrcodeIotSystem[qrcodeiotsystems_count];
+		
 		for (int i = 0, j = 0, k = 0; i < iotsystems.length; i++) {
 			IotSystem iotsys = iotsystems[i];
 			if ((iotsys instanceof QrcodeLocatedIotSystem)) {
@@ -396,6 +397,7 @@ public class Controller {
 		Query query = QueryFactory.create(queryString);
 		QueryExecution qexec = QueryExecutionFactory.sparqlService("http://localhost:7200/repositories/Test", query);
 		ResultSet results = qexec.execSelect();
+		
 		while (results.hasNext()) {
 			QuerySolution qs = results.next();
 			RDFNode system = qs.get("system");

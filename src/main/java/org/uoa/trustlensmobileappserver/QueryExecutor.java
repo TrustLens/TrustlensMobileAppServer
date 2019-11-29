@@ -46,211 +46,130 @@ public class QueryExecutor {
 		questionsSparclQueries = new HashMap<String, String[]>();
 
 		questionsSparclQueries.put("purpose",
-				new String[] { prefixes + "SELECT DISTINCT ?objective  ?objectiveDescription ?system ?parentSystem ?parentSystemLabel WHERE { " + 
-						"     {" + 
-						"                ?system ssn:implements ?procedure." + 
-						"    }" + 
-						"    UNION {" + 
-						"        ?parentSystem ssn:implements ?procedure;rdfs:label ?parentSystemLabel." + 
-						"        ?system ssn:implements ?subProcedure." + 
-						"        ?subProcedure ep-plan:isSubPlanOfPlan ?procedure." + 
-						"    }" + 
-						"				?procedure a ep-plan:Plan; ep-plan:includesObjective ?objective. " + 
-						"    ?objective a ep-plan:Objective; rdfs:comment ?objectiveDescription.						" + 
-						"    VALUES (?system) {" + 
-						"        (<_IOT_SYSTEM_URI_>)" + 
-						"    }" + 
-						"}" });
+				new String[] { prefixes
+						+ "SELECT DISTINCT ?objective  ?objectiveDescription ?system ?parentSystem ?parentSystemLabel WHERE { "
+						+ "     {" + "                ?system ssn:implements ?procedure." + "    }" + "    UNION {"
+						+ "        ?parentSystem ssn:implements ?procedure;rdfs:label ?parentSystemLabel."
+						+ "        ?system ssn:implements ?subProcedure."
+						+ "        ?subProcedure ep-plan:isSubPlanOfPlan ?procedure." + "    }"
+						+ "				?procedure a ep-plan:Plan; ep-plan:includesObjective ?objective. "
+						+ "    ?objective a ep-plan:Objective; rdfs:comment ?objectiveDescription.						"
+						+ "    VALUES (?system) {" + "        (<_IOT_SYSTEM_URI_>)" + "    }" + "}" });
 
 		questionsSparclQueries.put("access", new String[] {
-				prefixes + "SELECT DISTINCT ?agent ?role ?label ?rolelabel ?comment ?rolecomment " + "WHERE { "
-						+ "?agent a ?role; rdfs:comment ?comment; rdfs:label ?label. "
-						+ "?role rdfs:label ?rolelabel; rdfs:comment ?rolecomment. "
-						+ "FILTER (?role=gdpr:Processor || ?role=gdpr:SubProcessor|| ?role=gdpr:Controller) " + "} ",
-				prefixes + "SELECT DISTINCT ?agent ?label ?comment ?action ?commentAction ?labelAction " + "WHERE { "
-						+ "?agent a gdpr:DataSubject;rdfs:comment ?comment; rdfs:label ?label; ep-plan:isPermittedAgentFor ?action. "
-						+ "?action ep-plan:hasInputVariable ?data;rdfs:comment ?commentAction; rdfs:label ?labelAction. "
-						+ "?data a gdpr:PersonalData. " + "} ",
-				prefixes + "SELECT DISTINCT ?agent  ?label ?comment " + "WHERE { "
-						+ "?agent rdfs:comment ?comment; rdfs:label ?label; ep-plan:isPermittedAgentFor ?action. "
-						+ "{ " + "?action ep-plan:hasInputVariable ?data. " + "} " + "UNION" + "{ "
-						+ "?action ep-plan:hasInputVariable ?data. " + "} " + "?data a gdpr:PersonalData "
-						+ "FILTER NOT EXISTS { ?agent a ?role ."
-						+ "FILTER (?role=gdpr:Processor || ?role=gdpr:SubProcessor|| ?role=gdpr:Controller|| ?role=gdpr:DataSubject) "
-						+ "} } " });
-		questionsSparclQueries.put("contact", new String[] { prefixes
-				+ "SELECT DISTINCT ?name  ?hasContactOptionLabel ?organizationName ?contactvalue " + "" + "WHERE { "
-				+ "" + "?system a ssn:System." + "?contactAgent tl:isContactPointForSystem ?system." + "" + "OPTIONAL {"
-				+ "?contactAgent vcard:organization-name ?organizationName." + "}" + "" + "OPTIONAL {"
-				+ "?contactAgent vcard:fn ?name." + "}" + "" + "?contactAgent ?hasContactOption ?contact."
-				+ "?contact a vcard:Work; " + " vcard:value ?contactvalue." + ""
-				+ "?hasContactOption rdfs:label ?hasContactOptionLabel." + "" + "VALUES (?hasContactOption ) {"
-				+ "            ( vcard:email  )" + "            ( vcard:address  )" + "            ( vcard:tel  )"
-				+ "            ( vcard:url  )" + "}" + " VALUES (?system)" + "    {" + "        (<_IOT_SYSTEM_URI_>)"
-				+ "    }" + "}" });
-		
-		questionsSparclQueries.put("sharing", new String[] { prefixes
-				+ "Select  Distinct ?shareComment ?objectiveComment " + 
-				"" + 
-				"WHERE{" + 
-				"OPTIONAL {" + 
-				"    ?system ssn:implements ?procedure." + 
-				"    }" + 
-				"    OPTIONAL {" + 
-				"     ?system    ssn:implements ?subprocedure." + 
-				"     ?subprocedure ep-plan:isSubPlanOfPlan ?procedure." + 
-				"    }" + 
-				"" + 
-				"?procedure a ep-plan:Plan ." + 
-				"" + 
-				"?sharingStep ep-plan:isStepOfPlan ?procedure; a gdpr:ShareDataWithThirdParty; rdfs:comment ?shareComment." + 
-				"" + 
-				"OPTIONAL {" + 
-				"?objective ep-plan:isAchievedBy ?sharingStep; rdfs:comment ?objectiveComment." + 
-				"}" + 
-				"" + 
-				"OPTIONAL {" + 
-				"?objective ep-plan:isAchievedBy ?output; rdfs:comment ?objectiveComment." + 
-				"?sharingStep ep-plan:hasOutputVariable ?output." + 
-				"}" + 
-				"" + 
-				"VALUES (?system) {" + 
-				"(<_IOT_SYSTEM_URI_>)" + 
-				"}" + 
-			
-				"}"
+				prefixes + "SELECT DISTINCT ?agent ?role ?label ?rolelabel ?comment ?rolecomment   WHERE {" + " { "
+						+ "  ?system  ssn:implements ?procedure. " + "  }  " + "  UNION   " + " {  "
+						+ "   ?system  ssn:implements ?subProcedure.  " + "  ?parentSystem ssn:implements ?procedure."
+						+ " ?subProcedure ep-plan:isSubPlanOfPlan ?procedure. " + " } "
+						+ " ?agent a ?role; rdfs:comment ?comment; rdfs:label ?label; ep-plan:isResponsibleAgentOfPlan ?procedure."
+						+ " ?role rdfs:label ?rolelabel; rdfs:comment ?rolecomment. "
+						+ " FILTER (?role=gdpr:Processor || ?role=gdpr:SubProcessor|| ?role=gdpr:Controller)  "
+						+ "  filter not exists { " + "       ?agent a ?role2." + "       ?role2 rdfs:subClassOf ?role ."
+						+ "       filter ( ?role != ?role2 )" + "       }" + " values (?system)" + "   {"
+						+ "   (<_IOT_SYSTEM_URI_>)" + "     }" + " } ",
+				prefixes + "SELECT DISTINCT ?agent ?label ?comment ?action ?commentAction ?labelAction   WHERE {    "
+						+ "  {       " + "			         ?system  ssn:implements ?procedure.   "
+						+ "			          }   " + "   UNION    " + "  {   "
+						+ "   ?system  ssn:implements ?subProcedure.   "
+						+ "   ?parentSystem ssn:implements ?procedure.   "
+						+ "   ?subProcedure ep-plan:isSubPlanOfPlan ?procedure.  " + "  } "
+						+ " ?agent a gdpr:DataSubject;rdfs:comment ?comment; rdfs:label ?label; ep-plan:isPermittedAgentFor ?action;ep-plan:isResponsibleAgentOfPlan ?procedure.  "
+						+ " ?action ep-plan:hasInputVariable ?data;rdfs:comment ?commentAction; rdfs:label ?labelAction.  "
+						+ " ?data a gdpr:PersonalData.   " + "values (?system) { " + "(<_IOT_SYSTEM_URI_>) " + "} "
+						+ "}",
+				prefixes + "SELECT DISTINCT  ?agent  ?label ?comment   WHERE { {?system  ssn:implements ?procedure. }  UNION { ?system  ssn:implements ?subProcedure.  ?parentSystem ssn:implements ?procedure.  ?subProcedure ep-plan:isSubPlanOfPlan ?procedure.  } 						 ?agent rdfs:comment ?comment; rdfs:label ?label; ep-plan:isPermittedAgentFor ?action;ep-plan:isResponsibleAgentOfPlan ?procedure.   						 {   ?action ep-plan:hasInputVariable ?data.   }   UNION  { 						 ?data ep-plan:isVariableOfPlan ?action .   }           {?data a gdpr:PersonalData}UNION{?data a gdpr:PseudoAnonymousData}						 FILTER NOT EXISTS { ?agent a ?role .						 FILTER (?role=gdpr:Processor || ?role=gdpr:SubProcessor|| ?role=gdpr:Controller|| ?role=gdpr:DataSubject)        						 } Values (?system) {(<_IOT_SYSTEM_URI_>)}    }" });
+		questionsSparclQueries.put("contact",
+				new String[] { prefixes
+						+ "SELECT DISTINCT ?name  ?hasContactOptionLabel ?organizationName ?contactvalue " + ""
+						+ "WHERE { " + "" + "?system a ssn:System."
+						+ "?contactAgent tl:isContactPointForSystem ?system." + "" + "OPTIONAL {"
+						+ "?contactAgent vcard:organization-name ?organizationName." + "}" + "" + "OPTIONAL {"
+						+ "?contactAgent vcard:fn ?name." + "}" + "" + "?contactAgent ?hasContactOption ?contact."
+						+ "?contact a vcard:Work; " + " vcard:value ?contactvalue." + ""
+						+ "?hasContactOption rdfs:label ?hasContactOptionLabel." + "" + "VALUES (?hasContactOption ) {"
+						+ "            ( vcard:email  )" + "            ( vcard:address  )"
+						+ "            ( vcard:tel  )" + "            ( vcard:url  )" + "}" + " VALUES (?system)"
+						+ "    {" + "        (<_IOT_SYSTEM_URI_>)" + "    }" + "}" });
 
-		});
-		questionsSparclQueries.put("data_collection", new String[] { prefixes
-				+ "SELECT  ?dataOutput ?outputLabel ?outputComment " + "WHERE{ " + "?system ssn:implements ?procedure. "
-				+ "?procedure a ep-plan:Plan . "
-				+ "?dataOutput ep-plan:isVariableOfPlan ?procedure; rdfs:comment ?outputComment; rdfs:label ?outputLabel. "
-				+ "?objective ep-plan:isObjectiveOfPlan ?procedure; a ep-plan:Objective; ep-plan:isAchievedBy ?dataOutput.  "
-				+ " VALUES (?system)" + "    {" + "        (<_IOT_SYSTEM_URI_>)" + "    }" + "}" });
-		questionsSparclQueries.put("storage", new String[] { prefixes
-				+ "Select  Distinct ?shareComment ?objectiveComment" + 
-				"" + 
-				"WHERE{" + 
-				"OPTIONAL {" + 
-				"    ?system ssn:implements ?procedure." + 
-				"    }" + 
-				"    OPTIONAL {" + 
-				"     ?system    ssn:implements ?subprocedure." + 
-				"     ?subprocedure ep-plan:isSubPlanOfPlan ?procedure." + 
-				"    }" + 
-				"" + 
-				"?procedure a ep-plan:Plan ." + 
-				"" + 
-				"?sharingStep ep-plan:isStepOfPlan ?procedure; a gdpr:ShareDataWithThirdParty; rdfs:comment ?shareComment." + 
-				"" + 
-				"OPTIONAL {" + 
-				"?objective ep-plan:isAchievedBy ?sharingStep; rdfs:comment ?objectiveComment." + 
-				"}" + 
-				"" + 
-				"OPTIONAL {" + 
-				"?objective ep-plan:isAchievedBy ?output; rdfs:comment ?objectiveComment." + 
-				"?sharingStep ep-plan:hasOutputVariable ?output." + 
-				"}" + 
-				"" + 
-				"VALUES (?system) {" + 
-				"(<_IOT_SYSTEM_URI_>)" + 
-				"}" + 
-				"}" });
-		
+		questionsSparclQueries.put("sharing",
+				new String[] { prefixes + "Select  Distinct ?shareComment ?objectiveComment " + "" + "WHERE{" + " {"
+						+ "    ?system ssn:implements ?procedure." + "    }" + "    UNION {"
+						+ "     ?system    ssn:implements ?subprocedure."
+						+ "     ?subprocedure ep-plan:isSubPlanOfPlan ?procedure." + "    }" + ""
+						+ "?procedure a ep-plan:Plan ." + ""
+						+ "?sharingStep ep-plan:isStepOfPlan ?procedure; a gdpr:ShareDataWithThirdParty; rdfs:comment ?shareComment."
+						+ "" + "OPTIONAL {"
+						+ "?objective ep-plan:isAchievedBy ?sharingStep; rdfs:comment ?objectiveComment." + "}" + ""
+						+ "OPTIONAL {" + "?objective ep-plan:isAchievedBy ?output; rdfs:comment ?objectiveComment."
+						+ "?sharingStep ep-plan:hasOutputVariable ?output." + "}" + "" + "VALUES (?system) {"
+						+ "(<_IOT_SYSTEM_URI_>)" + "}" +
+
+						"}"
+
+				});
+		questionsSparclQueries.put("data_collection",
+				new String[] { prefixes + "SELECT  ?dataOutput ?outputLabel ?outputComment " + "WHERE{ "
+						+ "?system ssn:implements ?procedure. " + "?procedure a ep-plan:Plan . "
+						+ "?dataOutput ep-plan:isVariableOfPlan ?procedure; rdfs:comment ?outputComment; rdfs:label ?outputLabel. "
+						+ "?objective ep-plan:isObjectiveOfPlan ?procedure; a ep-plan:Objective; ep-plan:isAchievedBy ?dataOutput.  "
+						+ " VALUES (?system)" + "    {" + "        (<_IOT_SYSTEM_URI_>)" + "    }" + "}" });
+		questionsSparclQueries.put("storage",
+				new String[] { prefixes + "SELECT DISTINCT ?storageStep  ?constraintLabel ?constraintComment  ?dataComment ?dataLabel " 
+						+ "Where {"
+						+ "{?system  ssn:implements ?procedure. }  UNION { ?system  ssn:implements ?subProcedure.  ?parentSystem ssn:implements ?procedure.  ?subProcedure ep-plan:isSubPlanOfPlan ?procedure.  } "
+						+ "?storageStep a ep-plan:Step; a gdpr:StoreData; ep-plan:hasConstraint ?constraint; ep-plan:isStepOfPlan ?procedure."
+						+ "?constraint rdfs:label ?constraintLabel; rdfs:comment ?constraintComment;a tl:DurationOfStorage. "
+						+ "?storageStep ep-plan:hasOutputVariable ?var. "
+						+ "?var a gdpr:PersonalData ; rdfs:comment ?dataComment; rdfs:label ?dataLabel."
+						+ "Values (?system) {"
+						+ "(<_IOT_SYSTEM_URI_>)"
+						+ "}"
+						+ "}" });
+
 		questionsSparclQueries.put("identifiable", new String[] { prefixes
-				+ "Select DIstinct ?variableType ?label  ?comment ?parentSystem " + 
-				"WHERE{" + 
-				"{    " + 
-				"?system  ssn:implements ?procedure." + 
-				"    }" + 
-				"    UNION " + 
-				"    {" + 
-				"        ?system  ssn:implements ?subProcedure." + 
-				"        ?parentSystem ssn:implements ?procedure. " + 
-				"        ?subProcedure ep-plan:isSubPlanOfPlan ?procedure." + 
-				"    }" + 
-				"?procedure a ep-plan:Plan ." + 
-				"?variable ep-plan:isVariableOfPlan ?procedure; a ?variableType." + 
-				"" + 
-				"OPTIONAL {" + 
-				" ?variableType rdfs:label ?label;  rdfs:comment ?comment." + 
-				"}" + 
-				"" + 
-				"FILTER (?variableType = gdpr:PersonalData || ?variableType = gdpr:AnonymousData || ?variableType = gdpr:PseudoAnonymousData ) " + 
-				"" + 
-				"    VALUES (?system)" + 
-				"    " + 
-				"    {" + 
-				"        (<_IOT_SYSTEM_URI_>)" + 
-				"    }" + 
-				"" + 
-				"}"
+				+ "Select DIstinct ?variableType ?label  ?comment ?parentSystem " + "WHERE{" + "{    "
+				+ "?system  ssn:implements ?procedure." + "    }" + "    UNION " + "    {"
+				+ "        ?system  ssn:implements ?subProcedure." + "        ?parentSystem ssn:implements ?procedure. "
+				+ "        ?subProcedure ep-plan:isSubPlanOfPlan ?procedure." + "    }" + "?procedure a ep-plan:Plan ."
+				+ "?variable ep-plan:isVariableOfPlan ?procedure; a ?variableType." + "" + "OPTIONAL {"
+				+ " ?variableType rdfs:label ?label;  rdfs:comment ?comment." + "}" + ""
+				+ "FILTER (?variableType = gdpr:PersonalData || ?variableType = gdpr:AnonymousData || ?variableType = gdpr:PseudoAnonymousData ) "
+				+ "" + "    VALUES (?system)" + "    " + "    {" + "        (<_IOT_SYSTEM_URI_>)" + "    }" + "" + "}"
 
 		});
 
-		questionsSparclQueries.put("privacy", new String[] { prefixes
-				+ "Select  ?policyLink ?policyComment ?policyLabel " + 
-				"" + 
-				"WHERE{" + 
-				"?system ssn:implements ?procedure." + 
-				"?procedure a ep-plan:Plan ." + 
-				"" + 
-				"?policyLink a tl:PrivacyPolicy;  rdfs:comment ?policyComment; rdfs:label ?policyLabel." + 
-				"OPTIONAL {" + 
-				"   ?policyLink   ep-plan:isPolicyOfPlan ?procedure." + 
-				"         }" + 
-				"OPTIONAL {" + 
-				"     ?procedure ep-plan:isSubPlanOfPlan ?parentprocedure. " + 
-				"     ?policyLink   ep-plan:isPolicyOfPlan ?parentprocedure." + 
-				"}" + 
-				"    VALUES (?system) {" + 
-				"    (<_IOT_SYSTEM_URI_>)" + 
-				"}" + 
-				"" + 
-				"} " });
-		
-		questionsSparclQueries.put("protected_privacy", new String[] { prefixes + "Select  Distinct ?label " + 
-				"" + 
-				"WHERE{" + 
-				"    OPTIONAL {" + 
-				"    ?system ssn:implements ?procedure." + 
-				"    }" + 
-				"    OPTIONAL {" + 
-				"     ?system    ssn:implements ?subprocedure." + 
-				"     ?subprocedure ep-plan:isSubPlanOfPlan ?procedure." + 
-				"    }" + 
-				"" + 
-				"?procedure a ep-plan:Plan ." + 
-				"" + 
-				"?privacypolicy ep-plan:isPolicyOfPlan ?procedure; a tl:PrivacyPolicy. " + 
-				"" + 
-				"OPTIONAL {" + 
-				"{" + 
-				"?constraint ep-plan:hasRationale ?privacypolicy; ep-plan:isConstraintOfPlan ?procedure; rdfs:label ?label ." + 
-				"}" + 
-				"UNION" + 
-				" {" + 
-				"?step ep-plan:hasRationale ?privacypolicy; ep-plan:isStepOfPlan ?procedure; rdfs:label ?label." + 
-				"}" + 
-				"" + 
-				"}" + 
-				"    " + 
-				"    VALUES (?system) {" + 
-				"        (<http://trustlens.org/test_dataset1#IoTSensingDevice1>)" + 
-				"    }" + 
-				"" + 
-				"}"});
-		
-		questionsSparclQueries.put("risk", new String[] { prefixes + "SELECT DISTINCT ?riskLabel ?riskComment "
-				+ "WHERE { ?system a ssn:System. "
-				+ "?risk tl:isRiskIndicatorForSystem ?system; rdfs:label ?riskLabel; rdfs:comment ?riskComment. "
-				+ "VALUES (?system) {(<_IOT_SYSTEM_URI_>)}} " });
+		questionsSparclQueries.put("privacy",
+				new String[] { prefixes + "Select  ?policyLink ?policyComment ?policyLabel " + "" + "WHERE{"
+						+ "?system ssn:implements ?procedure." + "?procedure a ep-plan:Plan ." + "OPTIONAL {"
+						+ "   ?policyLink   ep-plan:isPolicyOfPlan ?procedure;  rdfs:comment ?policyComment; rdfs:label ?policyLabel."
+						+ "         }" + "OPTIONAL {" + "     ?procedure ep-plan:isSubPlanOfPlan ?parentprocedure. "
+						+ "     ?policyLink   ep-plan:isPolicyOfPlan ?parentprocedure;  rdfs:comment ?policyComment; rdfs:label ?policyLabel."
+						+ "}" + "    VALUES (?system) {" + "    (<_IOT_SYSTEM_URI_>)" + "}" + "" + "} " });
+
+		questionsSparclQueries.put("protected_privacy",
+				new String[] { prefixes + "Select  Distinct ?label " + "" + "WHERE{" + "     {"
+						+ "    ?system ssn:implements ?procedure." + "    }" + "    UNION {"
+						+ "     ?system    ssn:implements ?subprocedure."
+						+ "     ?subprocedure ep-plan:isSubPlanOfPlan ?procedure." + "    }" + ""
+						+ "?procedure a ep-plan:Plan ." + ""
+						
+						+ "{ {?constraint a tl:SecurityConstraint.}UNION{?constraint a tl:PrivacyConstraint.}" 
+						+ "?constraint ep-plan:isConstraintOfPlan ?procedure; rdfs:label ?label ."
+						+ "}" + "UNION" + " {"
+						+ "?step ep-plan:hasRationale ?privacypolicy; ep-plan:isStepOfPlan ?procedure; rdfs:label ?label. ?privacypolicy ep-plan:isPolicyOfPlan ?procedure; a tl:PrivacyPolicy."
+						+ "}" + "" +  "    " + "    VALUES (?system) {"
+						+ "        (<_IOT_SYSTEM_URI_>)" + "    }" + "" + "}" });
+
+		questionsSparclQueries.put("risk",
+				new String[] { prefixes + "SELECT DISTINCT ?riskLabel ?riskComment " + "WHERE { ?system a ssn:System. "
+						+ "?risk tl:isRiskIndicatorForSystem ?system; rdfs:label ?riskLabel; rdfs:comment ?riskComment. "
+						+ "VALUES (?system) {(<_IOT_SYSTEM_URI_>)}} " });
 	}
 
 	public String executeQuestion(String question_id, IotSystem iot_system) {
 
 		String response = error_msg_not_available;
-System.out.println (question_id);
+		System.out.println(question_id);
 		String[] sparclQueries = questionsSparclQueries.get(question_id);
 
 		System.out.println("sparclQueries [] ");
@@ -342,10 +261,6 @@ System.out.println (question_id);
 		return response;
 	}
 
-	
-
-	
-
 	public String formatResultsDatacollection(ResultSet[] resultsets) {
 		String s = new String();
 		ResultSet rs = resultsets[0];
@@ -361,118 +276,138 @@ System.out.println (question_id);
 		}
 		// s += makeP( "This device produces the following data: " +
 		// makeUL(purpose_ls));
+		if (!data_collection_results.isEmpty()) {
 		return "<h4>This device produces the following data </h4><hr>"
 				+ new SimpleCollapseCard("collection", data_collection_results, Constants.GREEN_COLOR).getHTML();
+		}
+		else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
 
 	public String formatResultsIdentifiable(ResultSet[] resultsets) {
 		String s = new String();
 		ResultSet rs = resultsets[0];
 		List<String> identifiable_ls = new ArrayList<String>();
-		HashMap <String, String> currentSystem = new HashMap <String, String> ();
-		HashMap <String, String> parentSystem = new HashMap <String, String> ();
+		HashMap<String, String> currentSystem = new HashMap<String, String>();
+		HashMap<String, String> parentSystem = new HashMap<String, String>();
 		while (rs.hasNext()) {
 			QuerySolution r = rs.next();
 			RDFNode l = r.get("label");
 			RDFNode c = r.get("comment");
 			RDFNode parent = r.get("parentSystem");
-			
-			
-			//handle current system 
-			if ((l != null) && (c != null)&&(parent ==null)) {
-				//identifiable_ls.add(l.toString() + ": " + trimQuotesAndApices(c.toString()));
-				currentSystem.put(cleanLitteralValue(l.toString()),cleanLitteralValue(c.toString()));
+
+			// handle current system
+			if ((l != null) && (c != null) && (parent == null)) {
+				// identifiable_ls.add(l.toString() + ": " +
+				// trimQuotesAndApices(c.toString()));
+				currentSystem.put(cleanLitteralValue(l.toString()), cleanLitteralValue(c.toString()));
 			}
-		   
-			//handle parent system 
-			if ((l != null) && (c != null)&&(parent!=null)) {
+
+			// handle parent system
+			if ((l != null) && (c != null) && (parent != null)) {
 				System.out.println("here");
-				//identifiable_ls.add(l.toString() + ": " + trimQuotesAndApices(c.toString()));
-				parentSystem.put(cleanLitteralValue(l.toString()),cleanLitteralValue(c.toString()));
+				// identifiable_ls.add(l.toString() + ": " +
+				// trimQuotesAndApices(c.toString()));
+				parentSystem.put(cleanLitteralValue(l.toString()), cleanLitteralValue(c.toString()));
 			}
-		
+
 		}
-		
-		//if (identifiable_ls.isEmpty()) {
-		if (parentSystem.isEmpty()&&currentSystem.isEmpty()) {
-			//identifiable_ls
-			//		.add("TrustLens has not enough information on the type of data used and produced by this system");
-			s+= "We do not have enough information on the type of data used and produced by this system";
+
+		// if (identifiable_ls.isEmpty()) {
+		if (parentSystem.isEmpty() && currentSystem.isEmpty()) {
+			// identifiable_ls
+			// .add("TrustLens has not enough information on the type of data
+			// used and produced by this system");
+			s += "We do not have enough information on the type of data used and produced by this system";
 		} else {
 			// add system name !!!
-			//s += makeP("The system works with the following types of data: : " + makeUL(identifiable_ls));
+			// s += makeP("The system works with the following types of data: :
+			// " + makeUL(identifiable_ls));
 			if (!currentSystem.isEmpty()) {
-			
-				s+="<h4>The current system works with the following types of data</h4><hr>";	
+
+				s += "<h4>The current system works with the following types of data</h4><hr>";
 				s += new SimpleCollapseCard("data_types_current", currentSystem, Constants.GREEN_COLOR).getHTML();
 				/*
-				// check the number of variables
-				ResultSet rs1 = resultsets[1];
-				ResultSet rs2 = resultsets[2];
-				boolean same_count = false;
-				while (rs1.hasNext() && rs2.hasNext()) {
-					QuerySolution r1 = rs1.next();
-					QuerySolution r2 = rs2.next();
-					RDFNode c1 = r1.get("count");
-					RDFNode c2 = r2.get("count");
-					if ((c1 != null) && (c2 != null)) {
-						System.out.println("c1: " + c1 + ". c2: " + c2);
-						if (c1.equals(c2))
-							same_count = true;
-					}
-				}
-				if (!same_count)
-					s += makeRed("Warning: We were not able to determine the type of some of the data used by this system");
-					*/
+				 * // check the number of variables ResultSet rs1 =
+				 * resultsets[1]; ResultSet rs2 = resultsets[2]; boolean
+				 * same_count = false; while (rs1.hasNext() && rs2.hasNext()) {
+				 * QuerySolution r1 = rs1.next(); QuerySolution r2 = rs2.next();
+				 * RDFNode c1 = r1.get("count"); RDFNode c2 = r2.get("count");
+				 * if ((c1 != null) && (c2 != null)) { System.out.println("c1: "
+				 * + c1 + ". c2: " + c2); if (c1.equals(c2)) same_count = true;
+				 * } } if (!same_count) s += makeRed(
+				 * "Warning: We were not able to determine the type of some of the data used by this system"
+				 * );
+				 */
+			}
+
+			if (!parentSystem.isEmpty()) {
+				s += "<h4>The parent system works with the following types of data</h4><hr>";
+				s += new SimpleCollapseCard("data_types_parent", parentSystem, Constants.GREEN_COLOR).getHTML();
+
 			}
 			
-		
-			if (!parentSystem.isEmpty()) {
-				s+="<h4>The parent system works with the following types of data</h4><hr>";	
-				s += new SimpleCollapseCard("data_types_parent", parentSystem, Constants.GREEN_COLOR).getHTML();
+			else {
+				s += "<h4>The parent system works with the following types of data</h4><hr>";
+				s += "<div class = \"alert warning\"> <strong> Warning </strong>  The app could not detect the type of data used by the parent system of this IoT device. </div>";
 				
 			}
 		}
 
 		// add super system !!!
-		//s += makeP("The systems is also part of a bigger IoT system...");
-/*
-		// check the number of variables
-		ResultSet rs1 = resultsets[1];
-		ResultSet rs2 = resultsets[2];
-		boolean same_count = false;
-		while (rs1.hasNext() && rs2.hasNext()) {
-			QuerySolution r1 = rs1.next();
-			QuerySolution r2 = rs2.next();
-			RDFNode c1 = r1.get("count");
-			RDFNode c2 = r2.get("count");
-			if ((c1 != null) && (c2 != null)) {
-				System.out.println("c1: " + c1 + ". c2: " + c2);
-				if (c1.equals(c2))
-					same_count = true;
-			}
-		}
-		if (!same_count)
-			s += makeRed("Warning: We were not able to determine the type of some of the data used by this system");
-*/
+		// s += makeP("The systems is also part of a bigger IoT system...");
+		/*
+		 * // check the number of variables ResultSet rs1 = resultsets[1];
+		 * ResultSet rs2 = resultsets[2]; boolean same_count = false; while
+		 * (rs1.hasNext() && rs2.hasNext()) { QuerySolution r1 = rs1.next();
+		 * QuerySolution r2 = rs2.next(); RDFNode c1 = r1.get("count"); RDFNode
+		 * c2 = r2.get("count"); if ((c1 != null) && (c2 != null)) {
+		 * System.out.println("c1: " + c1 + ". c2: " + c2); if (c1.equals(c2))
+		 * same_count = true; } } if (!same_count) s += makeRed(
+		 * "Warning: We were not able to determine the type of some of the data used by this system"
+		 * );
+		 */
+		if (!parentSystem.isEmpty()||!currentSystem.isEmpty()) {
 		return s;
+		}
+		else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
 
 	public String formatResultsStorage(ResultSet[] resultsets) {
 		String s = new String();
 		ResultSet rs = resultsets[0];
 		List<String> ls = new ArrayList<String>();
+		HashMap<String, String> storedData = new HashMap<String, String>();
 		while (rs.hasNext()) {
 			QuerySolution r = rs.next();
 			RDFNode dl = r.get("dataLabel");
 			RDFNode dc = r.get("dataComment");
 			RDFNode cl = r.get("constraintLabel");
 			RDFNode cc = r.get("constraintComment");
-			if ((dl != null) && (dc != null) && (cl != null) && (cc != null))
-				ls.add(trimQuotesAndApices(dl.toString()) + ":" + br + trimQuotesAndApices(dc.toString()));
-			ls.add(trimQuotesAndApices(cl.toString()) + ":" + br + trimQuotesAndApices(cc.toString()));
+			if ((dl != null) && (dc != null) && (cl != null) && (cc != null)) {
+				//ls.add(trimQuotesAndApices(dl.toString()) + ":" + br + trimQuotesAndApices(dc.toString()));
+			//ls.add(trimQuotesAndApices(cl.toString()) + ":" + br + trimQuotesAndApices(cc.toString()));
+			
+				//TO DO: in the future, needs to handle multiple constraints for the same data see formatResultsPurpose()
+				storedData.put(cleanLitteralValue(dc.toString()), cleanLitteralValue(cc.toString()));
+			}
 		}
-		s += makeP(makeUL(ls));
+		//s += makeP(makeUL(ls));
+		s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all types of stored personal data and the associated constraints within the IoT system (including its parent system) </div>";
+
+		
+		s += "<h4>Stored Data</h4><hr>";
+		
+		if (!storedData.isEmpty()) {
+			s += new SimpleCollapseCard("purpose", storedData, Constants.GREEN_COLOR).getHTML();
+		}
+		else {
+			s +=	Constants.NO_INFO_HTML;
+		}
+		
 		return s;
 	}
 
@@ -481,73 +416,86 @@ System.out.println (question_id);
 		ResultSet rs = resultsets[0];
 		List<String> purpose_ls = new ArrayList<String>();
 		List<String> purpose_ls_parent = new ArrayList<String>();
-		HashMap <String, ArrayList> objectives = new HashMap<String, ArrayList>();
+		HashMap<String, ArrayList> objectives = new HashMap<String, ArrayList>();
 		while (rs.hasNext()) {
 			QuerySolution r = rs.next();
 			RDFNode n = r.get("objectiveDescription");
 			RDFNode parent = r.get("parentSystem");
-			if (n != null&&parent!=null) {
+			if (n != null && parent != null) {
 				if (objectives.containsKey("Parent System")) {
-				objectives.get("Parent System").add(cleanLitteralValue(n.toString()));
-				}
-				else {
-					ArrayList objectiveItems = new ArrayList ();
+					objectives.get("Parent System").add(cleanLitteralValue(n.toString()));
+				} else {
+					ArrayList objectiveItems = new ArrayList();
 					objectiveItems.add(cleanLitteralValue(n.toString()));
-					objectives.put("Parent System",objectiveItems);
+					objectives.put("Parent System", objectiveItems);
 				}
 			}
-			
-			if (n != null&&parent==null) {
-				
+
+			if (n != null && parent == null) {
+
 				if (objectives.containsKey("Current System")) {
 					objectives.get("Current System").add(cleanLitteralValue(n.toString()));
-					}
-					else {
-						ArrayList objectiveItems = new ArrayList ();
-						objectiveItems.add(cleanLitteralValue(n.toString()));
-						objectives.put("Current System",objectiveItems);
-					}
+				} else {
+					ArrayList objectiveItems = new ArrayList();
+					objectiveItems.add(cleanLitteralValue(n.toString()));
+					objectives.put("Current System", objectiveItems);
+				}
 			}
-			
-			
 
 		}
-        
-		//MM: this is a horrible way to do this but no time so we might fix it later
-		HashMap <String, String>finalObjectives = new HashMap <String, String>  (); 
-		
+
+		// MM: this is a horrible way to do this but no time so we might fix it
+		// later
+		HashMap<String, String> finalObjectives = new HashMap<String, String>();
+
 		Iterator it = objectives.keySet().iterator();
-		
+
 		while (it.hasNext()) {
 			String key = (String) it.next();
-			//prepare html list 
+			// prepare html list
 			ArrayList objectiveItemsList = objectives.get(key);
-			String htmlObjectives = "<ul>"; 
-			for (int i =0; i< objectiveItemsList.size();i++) {
-				htmlObjectives+= "<li>"+objectiveItemsList.get(i)+"</li>";
+			String htmlObjectives = "<ul>";
+			for (int i = 0; i < objectiveItemsList.size(); i++) {
+				htmlObjectives += "<li>" + objectiveItemsList.get(i) + "</li>";
 			}
-			htmlObjectives += "</ul>"; 
+			htmlObjectives += "</ul>";
 			finalObjectives.put(key, htmlObjectives);
 		}
-		
+
 		s += "<h4>Purpose of the IoT system</h4><hr>";
-		
-		//System.out.println("Parent" + purpose_ls_parent.size() + "Sub system" + purpose_ls.size());
+
+		// System.out.println("Parent" + purpose_ls_parent.size() + "Sub system"
+		// + purpose_ls.size());
 
 		// s += makeP( "Purposes of collected data:" + makeUL(purpose_ls));
 		// return s;
 
-		//return new CardSliderHTML((ArrayList<String>) purpose_ls, (ArrayList<String>) purpose_ls_parent).getHTML();
-		
+		// return new CardSliderHTML((ArrayList<String>) purpose_ls,
+		// (ArrayList<String>) purpose_ls_parent).getHTML();
+		if (!finalObjectives.isEmpty())  {
 		s += new SimpleCollapseCard("purpose", finalObjectives, Constants.GREEN_COLOR).getHTML();
- 		
+		
+        if (!finalObjectives.containsKey("Current System")) {
+        	s += "<div class = \"alert alert-warning\"> <strong> Warning </strong>  The app could not find any information relating to objectives of the current system. </div>" ;
+		}
+		
+		if (!finalObjectives.containsKey("Parent System")) {
+			s += "<hr><div class = \"alert alert-warning\"> <strong> Warning </strong>  The app could not find any information relating to objectives of the parent system. </div>";
+		}
+		
+		
+
 		return s;
+		}
+		else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
 
 	public String formatResultsAccess(ResultSet[] resultsets) {
 		String s = new String();
 
-		s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all entities that have access to personal data within the IoT system (including it's parent system) </div>";
+		s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all entities that have access to personal and pseudopersonal data within the IoT system (including its parent system) </div>";
 
 		ResultSet rs1 = resultsets[1];
 		List<String> userdataaccess_ls = new ArrayList<String>();
@@ -558,12 +506,18 @@ System.out.println (question_id);
 			if (n != null)
 				// userdataaccess_ls.add(n.toString());
 				// Fix this this should be label of the action
-				userdataaccessMap.put("User Data Acces", cleanLitteralValue(n.toString()));
+				userdataaccessMap.put("User Data Access", cleanLitteralValue(n.toString()));
 		}
 		// s += makeP( "<h3>User Actions</h3><hr>" + makeUL(userdataaccess_ls));
 
-		s += "<h4>User Actions</h4><hr>"
-				+ new SimpleCollapseCard("usraction", userdataaccessMap, Constants.GREEN_COLOR).getHTML() + "<hr>";
+		s += "<h4>Users</h4><hr>";
+		
+		if (!userdataaccessMap.isEmpty()) {
+			s +=  new SimpleCollapseCard("usraction", userdataaccessMap, Constants.GREEN_COLOR).getHTML() + "<hr>";
+		}
+		else {
+			s += Constants.NO_INFO_HTML;
+		}
 
 		ResultSet rs0 = resultsets[0];
 		List<String> otherentities_ls = new ArrayList<String>();
@@ -575,12 +529,13 @@ System.out.println (question_id);
 			RDFNode c = r.get("comment");
 			RDFNode rc = r.get("rolecomment");
 			/*
-			 * if ( ( l!= null ) && ( rl!= null ) && ( c!= null ) && ( rc!= null ) ) //
-			 * otherentities_ls.add(l.toString() + br + c.toString() + br + rl.toString() +
-			 * " (" +trimQuotesAndApices(rc.toString()) + ")" ); otherentities_ls.add(
-			 * makeItalic( "Organization: ") + l.toString() + br +
-			 * makeItalic("Description: ") + c.toString() + br + makeItalic("GDPR Role: ") +
-			 * rl.toString() + " (" +trimQuotesAndApices(rc.toString()) + ")" );
+			 * if ( ( l!= null ) && ( rl!= null ) && ( c!= null ) && ( rc!= null
+			 * ) ) // otherentities_ls.add(l.toString() + br + c.toString() + br
+			 * + rl.toString() + " (" +trimQuotesAndApices(rc.toString()) + ")"
+			 * ); otherentities_ls.add( makeItalic( "Organization: ") +
+			 * l.toString() + br + makeItalic("Description: ") + c.toString() +
+			 * br + makeItalic("GDPR Role: ") + rl.toString() + " ("
+			 * +trimQuotesAndApices(rc.toString()) + ")" );
 			 */
 
 			if ((l != null) && (rl != null) && (c != null) && (rc != null)) {
@@ -591,13 +546,17 @@ System.out.println (question_id);
 		}
 
 		/*
-		 * if (!otherentities_ls.isEmpty()) { s += makeP(
-		 * ("Other entities that can access personal data: " +
+		 * if (!otherentities_ls.isEmpty()) { s += makeP( (
+		 * "Other entities that can access personal data: " +
 		 * makeUL(otherentities_ls))); }
 		 */
+		s += " <h4>Other entities</h4><hr>";
 		if (otherEntities.keySet().size() > 0) {
-			s += " <h4>Other entities that can access personal data</h4><hr>"
-					+ new SimpleCollapseCard("otherEntities", otherEntities, Constants.GREEN_COLOR).getHTML() + "<hr>";
+			
+			s +=  new SimpleCollapseCard("otherEntities", otherEntities, Constants.GREEN_COLOR).getHTML() + "<hr>";
+		}
+		else {
+			s += Constants.NO_INFO_HTML;
 		}
 
 		ResultSet rs2 = resultsets[2];
@@ -608,20 +567,24 @@ System.out.println (question_id);
 			RDFNode l = r.get("label");
 			RDFNode c = r.get("comment");
 			/*
-			 * if ( ( l!= null ) && ( c!= null ) ) entitiesnotclear_li.add(l.toString() + br
-			 * + c.toString() );
+			 * if ( ( l!= null ) && ( c!= null ) )
+			 * entitiesnotclear_li.add(l.toString() + br + c.toString() );
 			 */
 			if ((l != null) && (c != null)) {
 				noRoleEntities.put(cleanLitteralValue(l.toString()), cleanLitteralValue(c.toString()));
 			}
 		}
-		// s += makeRed(makeP( "Entities with access to personal data but no clear role
+		// s += makeRed(makeP( "Entities with access to personal data but no
+		// clear role
 		// in terms of GDPR: "
 		// + makeUL(entitiesnotclear_li)));
-
-		s += "<h4>Entities with access to personal data but no clear GDPR role</h4><hr> "
+       if (!noRoleEntities.isEmpty()) {
+		s += "<h4>Entities with access but no clear GDPR role</h4><hr> "
 				+ new SimpleCollapseCard("noRoleEntities", noRoleEntities, Constants.RED_COLOR).getHTML();
+       }
+		
 		return s;
+       
 	}
 
 	public String formatResultsContact(ResultSet[] resultsets) {
@@ -631,12 +594,13 @@ System.out.println (question_id);
 		ArrayList<String> values = new ArrayList<String>();
 		/*
 		 * while ( rs.hasNext() ) { QuerySolution r = rs.next(); RDFNode n =
-		 * r.get("name"); RDFNode cl = r.get("hasContactOptionLabel"); RDFNode on =
-		 * r.get("organizationName"); RDFNode v = r.get("value"); if ( ( n!= null ) && (
-		 * cl!= null ) && ( on!= null ) && ( v!= null ) ) { if (
+		 * r.get("name"); RDFNode cl = r.get("hasContactOptionLabel"); RDFNode
+		 * on = r.get("organizationName"); RDFNode v = r.get("value"); if ( (
+		 * n!= null ) && ( cl!= null ) && ( on!= null ) && ( v!= null ) ) { if (
 		 * !values.contains(trimQuotesAndApices(v.toString())) &&
-		 * !cl.toString().contains("has") ) { lsa.add(new String[] {on.toString(),
-		 * trimQuotesAndApices(n.toString()), trimQuotesAndApices(cl.toString()) +": " +
+		 * !cl.toString().contains("has") ) { lsa.add(new String[]
+		 * {on.toString(), trimQuotesAndApices(n.toString()),
+		 * trimQuotesAndApices(cl.toString()) +": " +
 		 * trimQuotesAndApices(v.toString()) } );
 		 * values.add(trimQuotesAndApices(v.toString())); } }
 		 * 
@@ -644,7 +608,8 @@ System.out.println (question_id);
 		 */
 		// s += makeP( compactListStringArray(lsa));
 
-		// BIIIIG ASSUMPTION AS NO TIME - > WE KNOW WE WILL ONLY HAVE ONE CONTACT - FIX
+		// BIIIIG ASSUMPTION AS NO TIME - > WE KNOW WE WILL ONLY HAVE ONE
+		// CONTACT - FIX
 		// NEEDED IF MORE CONTACTS POSSIBLE
 
 		String name = "";
@@ -672,38 +637,50 @@ System.out.println (question_id);
 
 		}
 
-		return new ContactCard(name, organisation, (ArrayList) values).getHTML();
+		if (values.size() > 0) {
+
+			return new ContactCard(name, organisation, (ArrayList) values).getHTML();
+		} else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
 
 	public String formatResultsPrivacy(ResultSet[] resultsets) {
 		String s = new String();
 		ResultSet rs = resultsets[0];
 		List<String> privacy_ls = new ArrayList<String>();
-		HashMap <String, String> policies = new HashMap <String, String> ();
+		HashMap<String, String> policies = new HashMap<String, String>();
 		while (rs.hasNext()) {
 			QuerySolution r = rs.next();
-			
+
 			RDFNode pl = r.get("policyLabel");
 			RDFNode pc = r.get("policyComment");
 			RDFNode plink = r.get("policyLink");
-			if ( (pl != null) && (pc != null) && (plink != null)) {
-				
-				policies.put(cleanLitteralValue(pl.toString()), pc.toString() + " "
-						+ "<a href='#' onclick=\"event.preventDefault();" + "cordova.InAppBrowser.open('"
-						+ plink.toString() + "', '_system', 'location=yes');" + "\">Click to view</a>");
+			if ((pl != null) && (pc != null) && (plink != null)) {
+
+				policies.put(cleanLitteralValue(pl.toString()),
+						pc.toString() + " " + "<a href='#' onclick=\"event.preventDefault();"
+								+ "cordova.InAppBrowser.open('" + plink.toString() + "', '_system', 'location=yes');"
+								+ "\">Click to view</a>");
 				/*
-				privacy_ls.add(sl.toString() + " " + pl.toString() + " " + pc.toString() + " "
-						+ "<a href='#' onclick=\"event.preventDefault();" + "cordova.InAppBrowser.open('"
-						+ plink.toString() + "', '_system', 'location=yes');" + "\">Click to view</a>");
-						*/
+				 * privacy_ls.add(sl.toString() + " " + pl.toString() + " " +
+				 * pc.toString() + " " +
+				 * "<a href='#' onclick=\"event.preventDefault();" +
+				 * "cordova.InAppBrowser.open('" + plink.toString() +
+				 * "', '_system', 'location=yes');" + "\">Click to view</a>");
+				 */
 			}
 		}
-        
-		s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all privacy policies associated with the IoT system (including it's parent system) </div>";
 
-		
-		s += new SimpleCollapseCard("policy", policies, Constants.GREEN_COLOR).getHTML();
-		return s;
+		if (!policies.isEmpty()) {
+			s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all privacy policies associated with the IoT system (including its parent system) </div>";
+
+			s += new SimpleCollapseCard("policy", policies, Constants.GREEN_COLOR).getHTML();
+			return s;
+		} else {
+			return Constants.NO_INFO_HTML;
+		}
+
 	}
 
 	public String formatResultsRisk(ResultSet[] resultsets) {
@@ -717,29 +694,37 @@ System.out.println (question_id);
 			RDFNode rl = r.get("riskLabel");
 			RDFNode rc = r.get("riskComment");
 			if ((rl != null) && (rc != null)) {
-				//ls.add(cleanLitteralValue(rl.toString()) + br + cleanLitteralValue(rc.toString()));
-				riskLevel= cleanLitteralValue(rl.toString());
+				// ls.add(cleanLitteralValue(rl.toString()) + br +
+				// cleanLitteralValue(rc.toString()));
+				riskLevel = cleanLitteralValue(rl.toString());
 				riskExplanation = cleanLitteralValue(rc.toString());
-				
-				String warning_level = ""; 
+
+				String warning_level = "";
 				if (riskLevel.equals("Low risk")) {
 					warning_level = "alert-success";
 				}
-		if (riskLevel.equals("Medium risk")) {
-			warning_level = "alert-warning";
+				if (riskLevel.equals("Medium risk")) {
+					warning_level = "alert-warning";
 				}
-		if (riskLevel.equals("High risk")) {
-			warning_level = "alert-danger";
-			
-		}
-				System.out.println (riskLevel);
-				s+= "<div class = \"alert "+warning_level+"\"> <strong> "+riskLevel+" </strong>  "+riskExplanation+" </div>";
+				if (riskLevel.equals("High risk")) {
+					warning_level = "alert-danger";
+
+				}
+				s += "<div class = \"alert " + warning_level + "\"> <strong> " + riskLevel + " </strong>  "
+						+ riskExplanation + " </div>";
+				
 			}
 		}
-		//s += makeP(makeUL(ls));	
-		return s;
+		// s += makeP(makeUL(ls));
+		
+		if (!riskLevel.equals("")) {
+			
+			return s;
+		} else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
-	
+
 	private String formatResultsPrivacyProtected(ResultSet[] resultsets) {
 		String s = new String();
 		ResultSet rs = resultsets[0];
@@ -747,21 +732,24 @@ System.out.println (question_id);
 		while (rs.hasNext()) {
 			QuerySolution r = rs.next();
 			RDFNode l = r.get("label");
-			//RDFNode c = r.get("comment");
-			if ((l != null) ) {
-				protected_privacy.put(cleanLitteralValue(l.toString()), "no additional description found");
+			// RDFNode c = r.get("comment");
+			if ((l != null)) {
+				protected_privacy.put(cleanLitteralValue(l.toString()), "No additional description found");
 			}
 		}
-		
-		s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all privacy protection mechanisms used by the IoT system (including it's parent system) </div>";
 
-		
-		s += "<h4>Privacy protection mechanisms used</h4><hr> "
-				+ new SimpleCollapseCard("privacy_protection", protected_privacy, Constants.GREEN_COLOR).getHTML();
-		
-		return s;
+		if (!protected_privacy.isEmpty()) {
+			s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists all privacy protection mechanisms used by the IoT system (including its parent system) </div>";
+
+			s += "<h4>Privacy protection mechanisms used</h4><hr> "
+					+ new SimpleCollapseCard("privacy_protection", protected_privacy, Constants.GREEN_COLOR).getHTML();
+
+			return s;
+		} else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
-	
+
 	private String formatResultsSharing(ResultSet[] resultsets) {
 		String s = new String();
 		ResultSet rs = resultsets[0];
@@ -770,26 +758,26 @@ System.out.println (question_id);
 			QuerySolution r = rs.next();
 			RDFNode l = r.get("shareComment");
 			RDFNode c = r.get("objectiveComment");
-			if ((l != null) ) {
-				String comment = "no additional description found";
+			if ((l != null)) {
+				String comment = "No additional description found";
 				if (c != null) {
 					comment = cleanLitteralValue(c.toString());
 				}
-				
+
 				sharing.put(cleanLitteralValue(l.toString()), comment);
 			}
 		}
-		
-		s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists information related to data sharing with third parties  within the IoT system (including it's parent system) </div>";
+		if (!sharing.isEmpty()) {
+			s += "<div class = \"alert alert-info\"> <strong> Info</strong> This section lists information related to data sharing with third parties  within the IoT system (including its parent system) </div>";
 
-		
-		s += "<h4>Data sharing</h4><hr> "
-				+ new SimpleCollapseCard("sharing", sharing, Constants.GREEN_COLOR).getHTML();
-		
-		return s;
-		
+			s += "<h4>Data sharing</h4><hr> "
+					+ new SimpleCollapseCard("sharing", sharing, Constants.GREEN_COLOR).getHTML();
+
+			return s;
+		} else {
+			return Constants.NO_INFO_HTML;
+		}
 	}
-	
 
 	public String formatOldResult(ResultSet[] resultsets) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

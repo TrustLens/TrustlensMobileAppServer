@@ -27,7 +27,8 @@ public class locatesystemsPostParameters {
 		this.longitude = longitude;
 	}
 	public String getPostcode() {
-		return postcode;
+		return postcode.toUpperCase()
+				;
 	}
 	public void setPostcode(String postcode) {
 		this.postcode = postcode;
